@@ -131,7 +131,7 @@ NOTES:
 
 
 #endif
-/* 
+/* Written by Willem
  * bitXor - x^y using only ~ and & 
  *   Example: bitXor(4, 5) = 1
  *   Legal ops: ~ &
@@ -139,9 +139,12 @@ NOTES:
  *   Rating: 1
  */
 int bitXor(int x, int y) {
-  return 2;
+	int left = (x & ~y);
+   int right = (~x & y);
+   return ~(~left & ~right);
+
 }
-/* 
+/* Written by Willen
  * getByte - Extract byte n from word x
  *   Bytes numbered from 0 (LSB) to 3 (MSB)
  *   Examples: getByte(0x12345678,1) = 0x56
@@ -150,15 +153,7 @@ int bitXor(int x, int y) {
  *   Rating: 2
  */
 int getByte(int x, int n) {
-
-
-
-
-
-
-
-  return 2;
-
+   return (x >> (n << 3)) & (0xff);
 }
 /* 
  * byteSwap - swaps the nth byte and the mth byte
@@ -170,9 +165,15 @@ int getByte(int x, int n) {
  *  Rating: 2
  */
 int byteSwap(int x, int n, int m) {
-    return 2;
+	int a = (0xff << (n << 3));
+	int b = (0xff << (m << 3));
+	int c = ((x&a) >> (n << 3)) << (m << 3);
+	int d = ((x&b) >> (m << 3)) << (n << 3);
+	int result = ((((x & ~a) & ~b) | c) | d);
+   return result;
 }
-/* 
+
+/* Written by Kyle
  * logicalShift - shift x to the right by n, using a logical shift
  *   Can assume that 0 <= n <= 31
  *   Examples: logicalShift(0x87654321,4) = 0x08765432
@@ -181,9 +182,16 @@ int byteSwap(int x, int n, int m) {
  *   Rating: 3 
  */
 int logicalShift(int x, int n) {
-  return 2;
+	int a = 1 << 31;
+   int b;
+   int c;
+   x = x >> n;
+   b = a >> n;
+   c = ~(b << 1);
+   return x & c;
 }
-/* 
+
+/* Written by Kyle
  * bang - Compute !x without using !
  *   Examples: bang(3) = 0, bang(0) = 1
  *   Legal ops: ~ & ^ | + << >>
@@ -191,9 +199,12 @@ int logicalShift(int x, int n) {
  *   Rating: 4 
  */
 int bang(int x) {
-  return 2;
+  int a= ~x;
+  int b= a+1;
+  return ((~b&a)>>31)&1;
 }
-/*
+
+/* Written by Nyi and Willem
  * bitCount - returns count of number of 1's in word
  *   Examples: bitCount(5) = 2, bitCount(7) = 3
  *   Legal ops: ! ~ & ^ | + << >>
@@ -201,18 +212,31 @@ int bang(int x) {
  *   Rating: 4
  */
 int bitCount(int x) {
-  return 2;
+   int m1=(0xFF<<8)+0xFF;  
+   int m2=(m1<<8)^m1;    
+   int m3=(m2<<4)^m2;     
+   int m4=(m3<<2)^m3;     
+   int m5=(m4<<1)^m4;     
+   x=(x&m5)+((x>>1)&m5);   
+   x=(x&m4)+((x>>2)&m4);   
+   x=(x&m3)+((x>>4)&m3);   
+   x=(x&m2)+((x>>8)&m2);   
+   x=(x&m1)+((x>>16)&m1); 
+   return x;
+          
 }
-/* 
+/* Written by Kyle
  * tmin - return minimum two's complement integer 
  *   Legal ops: ! ~ & ^ | + << >>
  *   Max ops: 4
  *   Rating: 1
  */
 int tmin(void) {
-  return 2;
+	return 1<<31;
 }
-/* 
+
+
+/* Written by Willem 
  * fitsBits - return 1 if x can be represented as an 
  *  n-bit, two's complement integer.
  *   1 <= n <= 32
@@ -222,9 +246,13 @@ int tmin(void) {
  *   Rating: 2
  */
 int fitsBits(int x, int n) {
-  return 2;
+   int shift, temp1, temp2;
+   shift = ~n + 33;
+   temp1 = x << shift;
+   temp2 = temp1 >> shift;
+   return !(temp2 ^ x);
 }
-/* 
+/* Written by Nyi
  * isNegative - return 1 if x < 0, return 0 otherwise 
  *   Example: isNegative(-1) = 1.
  *   Legal ops: ! ~ & ^ | + << >>
@@ -232,7 +260,8 @@ int fitsBits(int x, int n) {
  *   Rating: 2
  */
 int isNegative(int x) {
-  return 2;
+  x = x >> 31;
+  return !!x;
 }
 /* 
  * rempwr2 - Compute x%(2^n), for 0 <= n <= 30
@@ -245,7 +274,7 @@ int isNegative(int x) {
 int rempwr2(int x, int n) {
     return 2;
 }
-/* 
+/* Written by Nyi
  * absVal - absolute value of x
  *   Example: absVal(-1) = 1.
  *   You may assume -TMax <= x <= TMax
@@ -254,7 +283,8 @@ int rempwr2(int x, int n) {
  *   Rating: 4
  */
 int absVal(int x) {
-  return 2;
+  int y = x >> 31;
+  return (~y & x) | (y & (~x+1));
 }
 /*
  * trueFiveEighths - multiplies by 5/8 rounding toward 0,
@@ -268,9 +298,13 @@ int absVal(int x) {
  */
 int trueFiveEighths(int x)
 {
-    return 2;
+    /*int y = (x << 2) + x;
+        int a = y >> 3;
+        y >>= 31;
+        return (~y & a) | (y & (a+1));*/
+        return 2;
 }
-/* 
+/* Written by Nyi
  * float_abs - Return bit-level equivalent of absolute value of f for
  *   floating point argument f.
  *   Both the argument and result are passed as unsigned int's, but
@@ -282,9 +316,9 @@ int trueFiveEighths(int x)
  *   Rating: 2
  */
 unsigned float_abs(unsigned uf) {
-  return 2;
+  return (uf << 1) >> 1;
 }
-/* 
+/* Written by Nyi
  * float_neg - Return bit-level equivalent of expression -f for
  *   floating point argument f.
  *   Both the argument and result are passed as unsigned int's, but
@@ -296,9 +330,14 @@ unsigned float_abs(unsigned uf) {
  *   Rating: 2
  */
 unsigned float_neg(unsigned uf) {
- return 2;
+    int negative = uf & (0x80000000);
+    if (negative){
+    	return ((uf << 1) >> 1);
+    }
+    return uf + 0x80000000;
+    
 }
-/* 
+/* Written by Nyi
  * float_twice - Return bit-level equivalent of expression 2*f for
  *   floating point argument f.
  *   Both the argument and result are passed as unsigned int's, but
@@ -310,5 +349,20 @@ unsigned float_neg(unsigned uf) {
  *   Rating: 4
  */
 unsigned float_twice(unsigned uf) {
-  return 2;
+	unsigned answer;
+	unsigned sign    = ((uf >> 31)<<31); // 0  or 1
+	unsigned exp  = ((uf<<1) >>24)<<23;
+	unsigned mantissa = (uf<<9)>>9;
+	if ((uf == (0x7f800000))||(uf == (0xff800000))){
+		return uf;
+	}
+	if ((exp==0x0)){
+		mantissa = mantissa <<1;
+		return sign|exp|mantissa;	
+	}
+	exp = (((exp >> 23)+1)<<23);
+	answer = sign | exp | mantissa;
+	return answer;
 }
+
+
